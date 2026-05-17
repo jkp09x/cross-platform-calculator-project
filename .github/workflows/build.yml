@@ -1,0 +1,92 @@
+name: Build and Test
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        description: 'Operating system'
+        required: true
+        type: string
+      build_type:
+        description: 'Build type (Release or Debug)'
+        required: true
+        type: string
+      use_container:
+        description: 'Use Docker container'
+        required: false
+        type: boolean
+        default: false
+      container_image:
+        description: 'Container image to use'
+        required: false
+        type: string
+
+jobs:
+  build:
+    runs-on: ${{ inputs.os }}
+    
+    # Conditionally use container
+    container: ${{ inputs.use_container && fromJson(format('{{"image":"{0}"}}', inputs.container_image)) || null }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      # Install dependencies based on OS
+      - name: Install dependencies (Ubuntu)
+        if: runner.os == 'Linux' && !inputs.use_container
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake
+      
+      - name: Install dependencies (RHEL 7)
+        if: inputs.use_container && inputs.container_image == 'rockylinux:8'
+        run: |
+          yum groupinstall -y "Development Tools"
+          yum install -y cmake
+      
+      - name: Install dependencies (RHEL 9)
+        if: inputs.use_container && inputs.container_image == 'rockylinux:9'
+        run: |
+          dnf groupinstall -y "Development Tools"
+          dnf install -y cmake
+      
+      - name: Install dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install cmake
+      
+      - name: Install CMake (Windows)
+        if: runner.os == 'Windows'
+        uses: lukka/get-cmake@latest
+      
+      # Build steps
+      - name: Create build directory
+        run: mkdir -p build
+        shell: bash
+      
+      - name: Configure CMake
+        run: cd build && cmake -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} ..
+        shell: bash
+      
+      - name: Build (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: cd build && make
+      
+      - name: Build (Windows)
+        if: runner.os == 'Windows'
+        run: cd build && cmake --build . --config ${{ inputs.build_type }}
+      
+      # Run applications
+      - name: Run calculator (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: cd build && ./bin/calculator
+      
+      - name: Run calculator (Windows)
+        if: runner.os == 'Windows'
+        run: cd build && .\bin\${{ inputs.build_type }}\calculator.exe
+      
+      # Run tests
+      - name: Run unit tests
+        run: cd build && ctest --output-on-failure
+        shell: bash
