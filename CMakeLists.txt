@@ -81,6 +81,9 @@ set_target_properties(calculator PROPERTIES
 
 # ===== TESTING =====
 
+# Enable testing
+enable_testing()
+
 # Create test executable
 add_executable(calculator_test tests/calculator_test.cpp src/calculator.cpp)
 
