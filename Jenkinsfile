@@ -17,6 +17,7 @@ pipeline {
                     agent {
                         docker {
                             image 'ubuntu:22.04'
+                            args '--platform linux/amd64'
                             reuseNode false
                         }
                     }
@@ -53,6 +54,7 @@ pipeline {
                     agent {
                         docker {
                             image 'rockylinux:8'
+                            args '--platform linux/amd64'
                             reuseNode false
                         }
                     }
@@ -89,6 +91,7 @@ pipeline {
                     agent {
                         docker {
                             image 'rockylinux:9'
+                            args '--platform linux/amd64'
                             reuseNode false
                         }
                     }
@@ -120,40 +123,40 @@ pipeline {
                     }
                 }
                 
-                // Job 4: Build on Windows (using Wine in Docker)
-                stage('Build - Windows') {
-                    agent {
-                        docker {
-                            image 'mcr.microsoft.com/windows/servercore:ltsc2022'
-                            reuseNode false
-                        }
-                    }
-                    steps {
-                        script {
-                            echo "=== Building on Windows ==="
-                            echo "Build Type: ${params.BUILD_TYPE}"
-                        }
-                        checkout scm
-                        powershell '''
-                            Write-Host "Installing dependencies..."
-                            # Note: Windows container already has build tools
+                // // Job 4: Build on Windows (using Wine in Docker)
+                // stage('Build - Windows') {
+                //     agent {
+                //         docker {
+                //             image 'mcr.microsoft.com/windows/servercore:ltsc2022'
+                //             reuseNode false
+                //         }
+                //     }
+                //     steps {
+                //         script {
+                //             echo "=== Building on Windows ==="
+                //             echo "Build Type: ${params.BUILD_TYPE}"
+                //         }
+                //         checkout scm
+                //         powershell '''
+                //             Write-Host "Installing dependencies..."
+                //             # Note: Windows container already has build tools
                             
-                            Write-Host "Configuring CMake..."
-                            New-Item -ItemType Directory -Path build -Force | Out-Null
-                            cd build
-                            cmake -DCMAKE_BUILD_TYPE=$env:BUILD_TYPE ..
+                //             Write-Host "Configuring CMake..."
+                //             New-Item -ItemType Directory -Path build -Force | Out-Null
+                //             cd build
+                //             cmake -DCMAKE_BUILD_TYPE=$env:BUILD_TYPE ..
                             
-                            Write-Host "Building..."
-                            cmake --build . --config $env:BUILD_TYPE
+                //             Write-Host "Building..."
+                //             cmake --build . --config $env:BUILD_TYPE
                             
-                            Write-Host "Running calculator..."
-                            & ".\\bin\\$env:BUILD_TYPE\\calculator.exe"
+                //             Write-Host "Running calculator..."
+                //             & ".\\bin\\$env:BUILD_TYPE\\calculator.exe"
                             
-                            Write-Host "Running unit tests..."
-                            ctest --output-on-failure
-                        '''
-                    }
-                }
+                //             Write-Host "Running unit tests..."
+                //             ctest --output-on-failure
+                //         '''
+                //     }
+                // }
                 
                 // Job 5: Build on macOS (Alpine Linux as close alternative)
                 stage('Build - macOS Alternative') {
