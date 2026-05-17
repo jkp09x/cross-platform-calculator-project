@@ -1,0 +1,141 @@
+name: Build and Test on Multiple Platforms
+
+# When to run this workflow
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  # Job 1: Build on Ubuntu (Generic Linux)
+  build-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - name: "Ubuntu (Generic Linux)"
+            os: ubuntu-latest
+            build-type: Release
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake
+      
+      - name: Create build directory
+        run: mkdir -p build
+      
+      - name: Configure CMake
+        run: cd build && cmake -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} ..
+      
+      - name: Build
+        run: cd build && make
+      
+      - name: Run calculator
+        run: cd build && ./bin/calculator
+
+  # Job 2: Build on RHEL 7 (using Rocky Linux 8 as closest match)
+  build-rhel7:
+    runs-on: ubuntu-latest
+    container:
+      image: rockylinux:8
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Install dependencies (RHEL-based)
+        run: |
+          yum groupinstall -y "Development Tools"
+          yum install -y cmake
+      
+      - name: Create build directory
+        run: mkdir -p build
+      
+      - name: Configure CMake
+        run: cd build && cmake -DCMAKE_BUILD_TYPE=Release ..
+      
+      - name: Build
+        run: cd build && make
+      
+      - name: Run calculator
+        run: cd build && ./bin/calculator
+
+  # Job 3: Build on RHEL 9 (using Rocky Linux 9)
+  build-rhel9:
+    runs-on: ubuntu-latest
+    container:
+      image: rockylinux:9
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Install dependencies (RHEL 9)
+        run: |
+          dnf groupinstall -y "Development Tools"
+          dnf install -y cmake
+      
+      - name: Create build directory
+        run: mkdir -p build
+      
+      - name: Configure CMake
+        run: cd build && cmake -DCMAKE_BUILD_TYPE=Release ..
+      
+      - name: Build
+        run: cd build && make
+      
+      - name: Run calculator
+        run: cd build && ./bin/calculator
+
+  # Job 4: Build on Windows
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Install CMake
+        uses: lukka/get-cmake@latest
+      
+      - name: Create build directory
+        run: mkdir build
+      
+      - name: Configure CMake
+        run: cd build && cmake -DCMAKE_BUILD_TYPE=Release ..
+      
+      - name: Build
+        run: cd build && cmake --build . --config Release
+      
+      - name: Run calculator
+        run: cd build && .\bin\Release\calculator.exe
+
+  # Job 5: Build on macOS
+  build-macos:
+    runs-on: macos-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Install dependencies
+        run: |
+          brew install cmake
+      
+      - name: Create build directory
+        run: mkdir -p build
+      
+      - name: Configure CMake
+        run: cd build && cmake -DCMAKE_BUILD_TYPE=Release ..
+      
+      - name: Build
+        run: cd build && make
+      
+      - name: Run calculator
+        run: cd build && ./bin/calculator
