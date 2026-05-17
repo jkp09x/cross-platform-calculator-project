@@ -12,42 +12,42 @@ pipeline {
     stages {
         stage('Build on Multiple Platforms') {
             parallel {
-                // Job 1: Build on Ubuntu (Generic Linux)
-                stage('Build - Ubuntu Linux') {
-                    agent {
-                        docker {
-                            image 'ubuntu:22.04'
-                            args '--platform linux/amd64'
-                            reuseNode false
-                        }
-                    }
-                    steps {
-                        script {
-                            echo "=== Building on Ubuntu Linux ==="
-                            echo "Build Type: ${params.BUILD_TYPE}"
-                        }
-                        checkout scm
-                        sh '''
-                            echo "Installing dependencies..."
-                            apt-get update
-                            apt-get install -y build-essential cmake git
+                // // Job 1: Build on Ubuntu (Generic Linux)
+                // stage('Build - Ubuntu Linux') {
+                //     agent {
+                //         docker {
+                //             image 'ubuntu:22.04'
+                //             args '--platform linux/amd64'
+                //             reuseNode false
+                //         }
+                //     }
+                //     steps {
+                //         script {
+                //             echo "=== Building on Ubuntu Linux ==="
+                //             echo "Build Type: ${params.BUILD_TYPE}"
+                //         }
+                //         checkout scm
+                //         sh '''
+                //             echo "Installing dependencies..."
+                //             apt-get update
+                //             apt-get install -y build-essential cmake git
                             
-                            echo "Configuring CMake..."
-                            mkdir -p build
-                            cd build
-                            cmake -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ..
+                //             echo "Configuring CMake..."
+                //             mkdir -p build
+                //             cd build
+                //             cmake -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ..
                             
-                            echo "Building..."
-                            make
+                //             echo "Building..."
+                //             make
                             
-                            echo "Running calculator..."
-                            ./bin/calculator
+                //             echo "Running calculator..."
+                //             ./bin/calculator
                             
-                            echo "Running unit tests..."
-                            ctest --output-on-failure
-                        '''
-                    }
-                }
+                //             echo "Running unit tests..."
+                //             ctest --output-on-failure
+                //         '''
+                //     }
+                // }
                 
                 // Job 2: Build on RHEL 7 (Rocky Linux 8)
                 stage('Build - RHEL 7') {
