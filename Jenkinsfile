@@ -147,7 +147,7 @@ pipeline {
                             cmake --build . --config $env:BUILD_TYPE
                             
                             Write-Host "Running calculator..."
-                            & ".\bin\$env:BUILD_TYPE\calculator.exe"
+                            & ".\\bin\\$env:BUILD_TYPE\\calculator.exe"
                             
                             Write-Host "Running unit tests..."
                             ctest --output-on-failure
