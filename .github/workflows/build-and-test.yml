@@ -68,7 +68,7 @@ jobs:
       
       - name: Run calculator
         run: cd build && ./bin/calculator
-
+      
       - name: Run unit tests
         run: cd build && ctest --output-on-failure
 
@@ -98,7 +98,7 @@ jobs:
       
       - name: Run calculator
         run: cd build && ./bin/calculator
-
+      
       - name: Run unit tests
         run: cd build && ctest --output-on-failure
 
@@ -151,6 +151,6 @@ jobs:
       
       - name: Run calculator
         run: cd build && ./bin/calculator
-
+      
       - name: Run unit tests
         run: cd build && ctest --output-on-failure
