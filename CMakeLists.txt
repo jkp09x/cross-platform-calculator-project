@@ -79,8 +79,20 @@ set_target_properties(calculator PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
 
-# Optional: Enable testing
-enable_testing()
+# ===== TESTING =====
+
+# Create test executable
+add_executable(calculator_test tests/calculator_test.cpp src/calculator.cpp)
+
+# Set test output directory
+set_target_properties(calculator_test PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
+
+# Add test to CTest
+add_test(NAME CalculatorTests COMMAND calculator_test)
+
+message(STATUS "Tests enabled. Run with: ctest or ./bin/calculator_test")
 
 # Print configuration summary
 message(STATUS "")
@@ -92,3 +104,4 @@ message(STATUS "Build Type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "Compiler: ${CMAKE_CXX_COMPILER}")
 message(STATUS "=========================================")
 message(STATUS "")
+

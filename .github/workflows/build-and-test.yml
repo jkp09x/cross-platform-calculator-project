@@ -38,6 +38,9 @@ jobs:
       
       - name: Run calculator
         run: cd build && ./bin/calculator
+      
+      - name: Run unit tests
+        run: cd build && ctest --output-on-failure
 
   # Job 2: Build on RHEL 7 (using Rocky Linux 8 as closest match)
   build-rhel7:
@@ -66,6 +69,9 @@ jobs:
       - name: Run calculator
         run: cd build && ./bin/calculator
 
+      - name: Run unit tests
+        run: cd build && ctest --output-on-failure
+
   # Job 3: Build on RHEL 9 (using Rocky Linux 9)
   build-rhel9:
     runs-on: ubuntu-latest
@@ -93,6 +99,9 @@ jobs:
       - name: Run calculator
         run: cd build && ./bin/calculator
 
+      - name: Run unit tests
+        run: cd build && ctest --output-on-failure
+
   # Job 4: Build on Windows
   build-windows:
     runs-on: windows-latest
@@ -115,6 +124,9 @@ jobs:
       
       - name: Run calculator
         run: cd build && .\bin\Release\calculator.exe
+      
+      - name: Run unit tests
+        run: cd build && ctest --output-on-failure
 
   # Job 5: Build on macOS
   build-macos:
@@ -139,3 +151,6 @@ jobs:
       
       - name: Run calculator
         run: cd build && ./bin/calculator
+
+      - name: Run unit tests
+        run: cd build && ctest --output-on-failure
