@@ -49,79 +49,79 @@ pipeline {
                 //     }
                 // }
                 
-                // Job 2: Build on RHEL 7 (Rocky Linux 8)
-                stage('Build - RHEL 7') {
-                    agent {
-                        docker {
-                            image 'rockylinux:8'
-                            args '--platform linux/amd64'
-                            reuseNode false
-                        }
-                    }
-                    steps {
-                        script {
-                            echo "=== Building on RHEL 7 (Rocky Linux 8) ==="
-                            echo "Build Type: ${params.BUILD_TYPE}"
-                        }
-                        checkout scm
-                        sh '''
-                            echo "Installing dependencies..."
-                            yum groupinstall -y "Development Tools"
-                            yum install -y cmake git
+                // // Job 2: Build on RHEL 7 (Rocky Linux 8)
+                // stage('Build - RHEL 7') {
+                //     agent {
+                //         docker {
+                //             image 'rockylinux:8'
+                //             args '--platform linux/amd64'
+                //             reuseNode false
+                //         }
+                //     }
+                //     steps {
+                //         script {
+                //             echo "=== Building on RHEL 7 (Rocky Linux 8) ==="
+                //             echo "Build Type: ${params.BUILD_TYPE}"
+                //         }
+                //         checkout scm
+                //         sh '''
+                //             echo "Installing dependencies..."
+                //             yum groupinstall -y "Development Tools"
+                //             yum install -y cmake git
                             
-                            echo "Configuring CMake..."
-                            mkdir -p build
-                            cd build
-                            cmake -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ..
+                //             echo "Configuring CMake..."
+                //             mkdir -p build
+                //             cd build
+                //             cmake -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ..
                             
-                            echo "Building..."
-                            make
+                //             echo "Building..."
+                //             make
                             
-                            echo "Running calculator..."
-                            ./bin/calculator
+                //             echo "Running calculator..."
+                //             ./bin/calculator
                             
-                            echo "Running unit tests..."
-                            ctest --output-on-failure
-                        '''
-                    }
-                }
+                //             echo "Running unit tests..."
+                //             ctest --output-on-failure
+                //         '''
+                //     }
+                // }
                 
-                // Job 3: Build on RHEL 9 (Rocky Linux 9)
-                stage('Build - RHEL 9') {
-                    agent {
-                        docker {
-                            image 'rockylinux:9'
-                            args '--platform linux/amd64'
-                            reuseNode false
-                        }
-                    }
-                    steps {
-                        script {
-                            echo "=== Building on RHEL 9 (Rocky Linux 9) ==="
-                            echo "Build Type: ${params.BUILD_TYPE}"
-                        }
-                        checkout scm
-                        sh '''
-                            echo "Installing dependencies..."
-                            dnf groupinstall -y "Development Tools"
-                            dnf install -y cmake git
+                // // Job 3: Build on RHEL 9 (Rocky Linux 9)
+                // stage('Build - RHEL 9') {
+                //     agent {
+                //         docker {
+                //             image 'rockylinux:9'
+                //             args '--platform linux/amd64'
+                //             reuseNode false
+                //         }
+                //     }
+                //     steps {
+                //         script {
+                //             echo "=== Building on RHEL 9 (Rocky Linux 9) ==="
+                //             echo "Build Type: ${params.BUILD_TYPE}"
+                //         }
+                //         checkout scm
+                //         sh '''
+                //             echo "Installing dependencies..."
+                //             dnf groupinstall -y "Development Tools"
+                //             dnf install -y cmake git
                             
-                            echo "Configuring CMake..."
-                            mkdir -p build
-                            cd build
-                            cmake -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ..
+                //             echo "Configuring CMake..."
+                //             mkdir -p build
+                //             cd build
+                //             cmake -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ..
                             
-                            echo "Building..."
-                            make
+                //             echo "Building..."
+                //             make
                             
-                            echo "Running calculator..."
-                            ./bin/calculator
+                //             echo "Running calculator..."
+                //             ./bin/calculator
                             
-                            echo "Running unit tests..."
-                            ctest --output-on-failure
-                        '''
-                    }
-                }
+                //             echo "Running unit tests..."
+                //             ctest --output-on-failure
+                //         '''
+                //     }
+                // }
                 
                 // // Job 4: Build on Windows (using Wine in Docker)
                 // stage('Build - Windows') {
