@@ -5,8 +5,6 @@ on:
     branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]
-
-  # Allow manual trigger with input
   workflow_dispatch:
     inputs:
       build_type:
@@ -18,105 +16,45 @@ on:
           - Release
           - Debug
 
-# Set default build type for push/PR events
-env:
-  BUILD_TYPE: ${{ github.event.inputs.build_type || 'Release' }}
-
-# Define reusable steps
-.common_steps: &common_build_steps
-  - name: Checkout code
-    uses: actions/checkout@v4
-
-  - name: Create build directory
-    run: mkdir -p build
-
-  - name: Configure CMake
-    run: cd build && cmake -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} ..
-
-  - name: Build
-    run: cd build && make
-
-  - name: Run calculator
-    run: cd build && ./bin/calculator
-
-  - name: Run unit tests
-    run: cd build && ctest --output-on-failure
-
-.windows_steps: &windows_build_steps
-  - name: Checkout code
-    uses: actions/checkout@v4
-
-  - name: Install CMake
-    uses: lukka/get-cmake@latest
-
-  - name: Create build directory
-    run: mkdir build
-
-  - name: Configure CMake
-    run: cd build && cmake -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} ..
-
-  - name: Build
-    run: cd build && cmake --build . --config ${{ env.BUILD_TYPE }}
-
-  - name: Run calculator
-    run: cd build && .\bin\${{ env.BUILD_TYPE }}\calculator.exe
-
-  - name: Run unit tests
-    run: cd build && ctest --output-on-failure
-
 jobs:
   # Job 1: Build on Ubuntu (Generic Linux)
   build-linux:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential cmake
-
-      - <<: *common_build_steps
+    uses: ./.github/workflows/build.yml
+    with:
+      os: ubuntu-latest
+      build_type: ${{ github.event.inputs.build_type || 'Release' }}
+      use_container: false
 
   # Job 2: Build on RHEL 7 (using Rocky Linux 8 as closest match)
   build-rhel7:
-    runs-on: ubuntu-latest
-    container:
-      image: rockylinux:8
-    steps:
-      - name: Install dependencies (RHEL-based)
-        run: |
-          yum groupinstall -y "Development Tools"
-          yum install -y cmake
-
-      - <<: *common_build_steps
+    uses: ./.github/workflows/build.yml
+    with:
+      os: ubuntu-latest
+      build_type: ${{ github.event.inputs.build_type || 'Release' }}
+      use_container: true
+      container_image: rockylinux:8
 
   # Job 3: Build on RHEL 9 (using Rocky Linux 9)
   build-rhel9:
-    runs-on: ubuntu-latest
-    container:
-      image: rockylinux:9
-    steps:
-      - name: Install dependencies (RHEL 9)
-        run: |
-          dnf groupinstall -y "Development Tools"
-          dnf install -y cmake
-
-      - <<: *common_build_steps
+    uses: ./.github/workflows/build.yml
+    with:
+      os: ubuntu-latest
+      build_type: ${{ github.event.inputs.build_type || 'Release' }}
+      use_container: true
+      container_image: rockylinux:9
 
   # Job 4: Build on Windows
   build-windows:
-    runs-on: windows-latest
-    steps:
-      - name: Install CMake
-        uses: lukka/get-cmake@latest
-
-      - <<: *windows_build_steps
+    uses: ./.github/workflows/build.yml
+    with:
+      os: windows-latest
+      build_type: ${{ github.event.inputs.build_type || 'Release' }}
+      use_container: false
 
   # Job 5: Build on macOS
   build-macos:
-    runs-on: macos-latest
-    steps:
-      - name: Install dependencies
-        run: |
-          brew install cmake
-
-      - <<: *common_build_steps
+    uses: ./.github/workflows/build.yml
+    with:
+      os: macos-latest
+      build_type: ${{ github.event.inputs.build_type || 'Release' }}
+      use_container: false
