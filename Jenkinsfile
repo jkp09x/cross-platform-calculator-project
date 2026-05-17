@@ -36,7 +36,7 @@ pipeline {
                 // Job 2: Build on RHEL 7
                 stage('Build - RHEL 7') {
                     agent {
-                        docker {
+                        dockerContainer {
                             image 'rockylinux:8'
                             label 'linux'
                             args '--rm'
@@ -63,7 +63,7 @@ pipeline {
                 // Job 3: Build on RHEL 9
                 stage('Build - RHEL 9') {
                     agent {
-                        docker {
+                        dockerContainer {
                             image 'rockylinux:9'
                             label 'linux'
                             args '--rm'
