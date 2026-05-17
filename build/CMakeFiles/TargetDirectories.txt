@@ -1,0 +1,4 @@
+/Users/jigar.patel/Documents/Tutorials/cross-platform-calculator-project/build/CMakeFiles/calculator.dir
+/Users/jigar.patel/Documents/Tutorials/cross-platform-calculator-project/build/CMakeFiles/test.dir
+/Users/jigar.patel/Documents/Tutorials/cross-platform-calculator-project/build/CMakeFiles/edit_cache.dir
+/Users/jigar.patel/Documents/Tutorials/cross-platform-calculator-project/build/CMakeFiles/rebuild_cache.dir
