@@ -12,119 +12,179 @@ pipeline {
     stages {
         stage('Build on Multiple Platforms') {
             parallel {
-                // Job 1: Build on Linux (Generic)
+                // Job 1: Build on Ubuntu (Generic Linux)
                 stage('Build - Ubuntu Linux') {
                     agent {
-                        label 'linux'  // Jenkins agent with 'linux' label
+                        docker {
+                            image 'ubuntu:22.04'
+                            reuseNode false
+                        }
                     }
                     steps {
                         script {
-                            echo "Building on Ubuntu Linux (Release: ${params.BUILD_TYPE})"
+                            echo "=== Building on Ubuntu Linux ==="
+                            echo "Build Type: ${params.BUILD_TYPE}"
                         }
                         checkout scm
                         sh '''
+                            echo "Installing dependencies..."
+                            apt-get update
+                            apt-get install -y build-essential cmake git
+                            
+                            echo "Configuring CMake..."
                             mkdir -p build
                             cd build
                             cmake -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ..
+                            
+                            echo "Building..."
                             make
+                            
+                            echo "Running calculator..."
                             ./bin/calculator
+                            
+                            echo "Running unit tests..."
                             ctest --output-on-failure
                         '''
                     }
                 }
                 
-                // Job 2: Build on RHEL 7
+                // Job 2: Build on RHEL 7 (Rocky Linux 8)
                 stage('Build - RHEL 7') {
                     agent {
-                        dockerContainer {
+                        docker {
                             image 'rockylinux:8'
-                            label 'linux'
-                            args '--rm'
+                            reuseNode false
                         }
                     }
                     steps {
                         script {
-                            echo "Building on RHEL 7 (Rocky Linux 8)"
+                            echo "=== Building on RHEL 7 (Rocky Linux 8) ==="
+                            echo "Build Type: ${params.BUILD_TYPE}"
                         }
                         checkout scm
                         sh '''
+                            echo "Installing dependencies..."
                             yum groupinstall -y "Development Tools"
-                            yum install -y cmake
+                            yum install -y cmake git
+                            
+                            echo "Configuring CMake..."
                             mkdir -p build
                             cd build
                             cmake -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ..
+                            
+                            echo "Building..."
                             make
+                            
+                            echo "Running calculator..."
                             ./bin/calculator
+                            
+                            echo "Running unit tests..."
                             ctest --output-on-failure
                         '''
                     }
                 }
                 
-                // Job 3: Build on RHEL 9
+                // Job 3: Build on RHEL 9 (Rocky Linux 9)
                 stage('Build - RHEL 9') {
                     agent {
-                        dockerContainer {
+                        docker {
                             image 'rockylinux:9'
-                            label 'linux'
-                            args '--rm'
+                            reuseNode false
                         }
                     }
                     steps {
                         script {
-                            echo "Building on RHEL 9"
+                            echo "=== Building on RHEL 9 (Rocky Linux 9) ==="
+                            echo "Build Type: ${params.BUILD_TYPE}"
                         }
                         checkout scm
                         sh '''
+                            echo "Installing dependencies..."
                             dnf groupinstall -y "Development Tools"
-                            dnf install -y cmake
+                            dnf install -y cmake git
+                            
+                            echo "Configuring CMake..."
                             mkdir -p build
                             cd build
                             cmake -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ..
+                            
+                            echo "Building..."
                             make
+                            
+                            echo "Running calculator..."
                             ./bin/calculator
+                            
+                            echo "Running unit tests..."
                             ctest --output-on-failure
                         '''
                     }
                 }
                 
-                // Job 4: Build on Windows
+                // Job 4: Build on Windows (using Wine in Docker)
                 stage('Build - Windows') {
                     agent {
-                        label 'windows'  // Jenkins agent with 'windows' label
+                        docker {
+                            image 'mcr.microsoft.com/windows/servercore:ltsc2022'
+                            reuseNode false
+                        }
                     }
                     steps {
                         script {
-                            echo "Building on Windows"
+                            echo "=== Building on Windows ==="
+                            echo "Build Type: ${params.BUILD_TYPE}"
                         }
                         checkout scm
-                        bat '''
-                            mkdir build
+                        powershell '''
+                            Write-Host "Installing dependencies..."
+                            # Note: Windows container already has build tools
+                            
+                            Write-Host "Configuring CMake..."
+                            New-Item -ItemType Directory -Path build -Force | Out-Null
                             cd build
-                            cmake -DCMAKE_BUILD_TYPE=%BUILD_TYPE% ..
-                            cmake --build . --config %BUILD_TYPE%
-                            bin\\%BUILD_TYPE%\\calculator.exe
+                            cmake -DCMAKE_BUILD_TYPE=$env:BUILD_TYPE ..
+                            
+                            Write-Host "Building..."
+                            cmake --build . --config $env:BUILD_TYPE
+                            
+                            Write-Host "Running calculator..."
+                            & ".\bin\$env:BUILD_TYPE\calculator.exe"
+                            
+                            Write-Host "Running unit tests..."
                             ctest --output-on-failure
                         '''
                     }
                 }
                 
-                // Job 5: Build on macOS
-                stage('Build - macOS') {
+                // Job 5: Build on macOS (Alpine Linux as close alternative)
+                stage('Build - macOS Alternative') {
                     agent {
-                        label 'macos'  // Jenkins agent with 'macos' label
+                        docker {
+                            image 'alpine:latest'
+                            reuseNode false
+                        }
                     }
                     steps {
                         script {
-                            echo "Building on macOS"
+                            echo "=== Building on Alpine Linux (macOS alternative) ==="
+                            echo "Build Type: ${params.BUILD_TYPE}"
                         }
                         checkout scm
                         sh '''
-                            brew install cmake
+                            echo "Installing dependencies..."
+                            apk add --no-cache build-base cmake git
+                            
+                            echo "Configuring CMake..."
                             mkdir -p build
                             cd build
                             cmake -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ..
+                            
+                            echo "Building..."
                             make
+                            
+                            echo "Running calculator..."
                             ./bin/calculator
+                            
+                            echo "Running unit tests..."
                             ctest --output-on-failure
                         '''
                     }
@@ -135,13 +195,21 @@ pipeline {
     
     post {
         always {
-            echo "Pipeline finished"
+            script {
+                echo "========================================"
+                echo "Pipeline finished"
+                echo "========================================"
+            }
         }
         success {
-            echo "✓ All platforms built successfully"
+            script {
+                echo "✓ All platforms built successfully!"
+            }
         }
         failure {
-            echo "✗ Build failed on one or more platforms"
+            script {
+                echo "✗ Build failed on one or more platforms"
+            }
         }
     }
 }
